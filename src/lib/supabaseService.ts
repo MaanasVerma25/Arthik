@@ -320,3 +320,26 @@ export const saveRoadmapProfile = async (
     return false;
   }
 };
+
+export const updateUserProfile = async (
+  userId: string,
+  updates: { name?: string; city?: string }
+) => {
+  try {
+    const supabaseUpdates: any = {};
+    if (updates.name !== undefined) supabaseUpdates.full_name = updates.name;
+    if (updates.city !== undefined) supabaseUpdates.city = updates.city;
+
+    const { error } = await supabase
+      .from("profiles")
+      .update(supabaseUpdates)
+      .eq("id", userId);
+
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.error("Error updating user profile:", err);
+    return false;
+  }
+};
+

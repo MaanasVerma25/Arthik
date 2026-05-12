@@ -1,22 +1,67 @@
 import AppLayout from "@/components/layout/AppLayout";
-import { fetchCurrentUserProfile, UserProfile } from "@/lib/supabaseService";
+import { fetchCurrentUserProfile, UserProfile, updateUserProfile } from "@/lib/supabaseService";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Wallet, Shield, Target, Briefcase } from "lucide-react";
+import { Calendar, Wallet, Shield, Target, Briefcase, Edit2, Check, X, MapPin } from "lucide-react";
+import { toast } from "sonner";
 
 const ProfilePage = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedName, setEditedName] = useState("");
+  const [editedCity, setEditedCity] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       const profile = await fetchCurrentUserProfile();
       setUser(profile);
+      if (profile) {
+        setEditedName(profile.name);
+        setEditedCity(profile.city || "");
+      }
       setLoading(false);
     };
 
     fetchData();
   }, []);
+
+  const handleSave = async () => {
+    if (!user) return;
+    if (!editedName.trim()) {
+      toast.error("Name cannot be empty");
+      return;
+    }
+
+    setSaving(true);
+    const success = await updateUserProfile(user.id, {
+      name: editedName,
+      city: editedCity
+    });
+
+    if (success) {
+      setUser({
+        ...user,
+        name: editedName,
+        city: editedCity,
+        initials: editedName.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase()
+      });
+      setIsEditing(false);
+      toast.success("Profile updated successfully");
+    } else {
+      toast.error("Failed to update profile");
+    }
+    setSaving(false);
+  };
+
+  const handleCancel = () => {
+    if (user) {
+      setEditedName(user.name);
+      setEditedCity(user.city || "");
+    }
+    setIsEditing(false);
+  };
 
   if (loading || !user) {
     return (
@@ -44,14 +89,65 @@ const ProfilePage = () => {
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary text-2xl font-bold text-primary-foreground">
               {user.initials}
             </div>
-            <div className="text-center sm:text-left">
-              <h1 className="font-display text-2xl">{user.name}</h1>
-              <p className="text-muted-foreground">{user.role} {user.city ? `• ${user.city}` : ""}</p>
+            <div className="flex-1 text-center sm:text-left">
+              {isEditing ? (
+                <div className="space-y-2 max-w-xs mx-auto sm:mx-0">
+                  <input
+                    type="text"
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                    className="w-full rounded-md border border-border bg-background px-3 py-1 text-lg font-display focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    placeholder="Full Name"
+                    autoFocus
+                  />
+                  <div className="flex items-center gap-2">
+                    <MapPin size={14} className="text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={editedCity}
+                      onChange={(e) => setEditedCity(e.target.value)}
+                      className="w-full rounded-md border border-border bg-background px-2 py-0.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      placeholder="City (e.g. Mumbai)"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <h1 className="font-display text-2xl">{user.name}</h1>
+                  <p className="text-muted-foreground">{user.role} {user.city ? `• ${user.city}` : ""}</p>
+                </>
+              )}
               <div className="mt-1 flex items-center justify-center gap-1 text-sm text-muted-foreground sm:justify-start">
                 <Calendar size={14} /> Joined {new Date(user.joinDate).toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
               </div>
             </div>
-            <div className="sm:ml-auto flex items-center gap-2">
+            <div className="sm:ml-auto flex flex-col items-end gap-3">
+              <div className="flex items-center gap-2">
+                {isEditing ? (
+                  <>
+                    <button
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                    >
+                      {saving ? "SAVING..." : <><Check size={14} /> SAVE</>}
+                    </button>
+                    <button
+                      onClick={handleCancel}
+                      className="flex items-center gap-1 rounded-md bg-secondary px-3 py-1.5 text-xs font-bold text-muted-foreground hover:bg-secondary/80"
+                    >
+                      <X size={14} /> CANCEL
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="flex items-center gap-1 rounded-md bg-secondary/50 px-3 py-1.5 text-xs font-bold text-muted-foreground border border-border hover:bg-secondary hover:text-foreground transition-colors"
+                  >
+                    <Edit2 size={14} /> EDIT PROFILE
+                  </button>
+                )}
+              </div>
               <span className={`px-3 py-1 rounded-full text-xs font-bold ${user.isPro ? 'bg-yellow-500/20 text-yellow-500 border border-yellow-500/30' : 'bg-secondary text-muted-foreground border border-border'}`}>
                 {user.isPro ? 'PRO MEMBER' : 'BASIC ACCOUNT'}
               </span>
