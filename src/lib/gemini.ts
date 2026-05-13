@@ -60,7 +60,12 @@ export const generateBudgetRoadmap = async (data: AiBudgetRequest): Promise<AiBu
     throw new Error("Missing VITE_GEMINI_API_KEY in environment variables.");
   }
 
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model = genAI.getGenerativeModel({ 
+    model: "gemini-2.5-flash",
+    generationConfig: {
+      responseMimeType: "application/json",
+    }
+  });
 
   const prompt = `
     You are an expert, realistic financial advisor. 
@@ -133,8 +138,8 @@ export const generateBudgetRoadmap = async (data: AiBudgetRequest): Promise<AiBu
     if (cleanText.endsWith('```')) cleanText = cleanText.substring(0, cleanText.length - 3);
     
     return JSON.parse(cleanText) as AiBudgetResponse;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating AI Roadmap:", error);
-    throw new Error("Failed to generate AI Roadmap. Ensure your prompt was processed correctly and the API key is valid.");
+    throw new Error(`Failed to generate AI Roadmap: ${error?.message || "Unknown error"}. Please check your connection and try again.`);
   }
 };
