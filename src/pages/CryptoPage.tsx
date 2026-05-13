@@ -235,7 +235,7 @@ const CryptoPage = () => {
               <p className="text-muted-foreground mt-1">
                 {selectedAsset
                   ? `${selectedAsset.symbol.replace("USDT", " / USDT")} · Live chart & trading`
-                  : "Live prices and 24h performance from Binance"}
+                  : "Live prices and 24h performance index"}
               </p>
             </div>
           </div>
@@ -307,9 +307,8 @@ const CryptoPage = () => {
                   <div className="text-right">
                     <div className="font-mono text-3xl font-bold">{formatPrice(selectedAsset.rawPrice)}</div>
                     <div
-                      className={`flex items-center justify-end gap-1 text-sm font-medium mt-1 ${
-                        !selectedAsset.priceChangePercent.startsWith("-") ? "text-success" : "text-destructive"
-                      }`}
+                      className={`flex items-center justify-end gap-1 text-sm font-medium mt-1 ${!selectedAsset.priceChangePercent.startsWith("-") ? "text-success" : "text-destructive"
+                        }`}
                     >
                       {!selectedAsset.priceChangePercent.startsWith("-") ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
                       {selectedAsset.priceChangePercent}%
@@ -346,11 +345,10 @@ const CryptoPage = () => {
                       <button
                         key={r}
                         onClick={() => setTimeRange(r)}
-                        className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
-                          timeRange === r
+                        className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${timeRange === r
                             ? "bg-primary text-primary-foreground"
                             : "bg-secondary text-muted-foreground hover:bg-secondary/80"
-                        }`}
+                          }`}
                       >
                         {r}
                       </button>
@@ -425,7 +423,7 @@ const CryptoPage = () => {
                     {holdings.length === 0 ? (
                       <div className="flex h-full items-center justify-center text-center text-sm text-muted-foreground flex-col gap-2 opacity-50">
                         <Coins size={32} />
-                        No crypto positions. <br/> Buy crypto to build your portfolio.
+                        No crypto positions. <br /> Buy crypto to build your portfolio.
                       </div>
                     ) : (
                       holdings.map((h) => {
@@ -503,9 +501,8 @@ const CryptoPage = () => {
                             </div>
                           </div>
                           <div
-                            className={`flex items-center gap-1 rounded px-2 py-0.5 text-xs font-bold ${
-                              isPositive ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
-                            }`}
+                            className={`flex items-center gap-1 rounded px-2 py-0.5 text-xs font-bold ${isPositive ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+                              }`}
                           >
                             <Icon size={12} />
                             {asset.priceChangePercent}%

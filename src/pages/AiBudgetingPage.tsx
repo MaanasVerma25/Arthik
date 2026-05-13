@@ -152,73 +152,73 @@ const AiBudgetingPage = () => {
   return (
     <AppLayout>
       <div className="mx-auto max-w-5xl space-y-8">
-        
+
         {/* Header */}
         <div>
           <h1 className="font-display text-4xl flex items-center gap-3">
             AI Budget <span className="text-primary">&</span> Roadmap Builder
           </h1>
           <p className="mt-2 text-muted-foreground max-w-2xl">
-            Powered by Google Gemini. Tell us your wildest financial ambitions, and our AI will run the compounding math to give you a brutal, realistic path to achieve it.
+            Tell us your wildest financial ambitions, and our AI will run the compounding math to give you a brutal, realistic path to achieve it.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
+
           {/* Form Side */}
           <div className="lg:col-span-4 space-y-6">
             <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 Your Profile <BrainCircuit size={18} className="text-primary" />
               </h3>
-              
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label>Age</Label>
-                  <Input 
-                    type="number" 
-                    value={formData.age} 
-                    onChange={e => setFormData({...formData, age: Number(e.target.value)})} 
+                  <Input
+                    type="number"
+                    value={formData.age}
+                    onChange={e => setFormData({ ...formData, age: Number(e.target.value) })}
                     className="bg-secondary"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Monthly Earnings (₹)</Label>
-                  <Input 
-                    type="number" 
-                    value={formData.monthlyEarnings} 
-                    onChange={e => setFormData({...formData, monthlyEarnings: Number(e.target.value)})} 
+                  <Input
+                    type="number"
+                    value={formData.monthlyEarnings}
+                    onChange={e => setFormData({ ...formData, monthlyEarnings: Number(e.target.value) })}
                     className="bg-secondary"
                   />
                 </div>
 
                 <div className="space-y-2">
-                   <Label>Field of Work</Label>
-                   <Input 
+                  <Label>Field of Work</Label>
+                  <Input
                     placeholder="e.g. Graphic Designer, Teacher"
-                    value={formData.fieldOfWork} 
-                    onChange={e => setFormData({...formData, fieldOfWork: e.target.value})} 
+                    value={formData.fieldOfWork}
+                    onChange={e => setFormData({ ...formData, fieldOfWork: e.target.value })}
                     className="bg-secondary"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Expected Yearly Salary Growth (%)</Label>
-                  <Input 
-                    type="number" 
-                    value={formData.expectedIncrementPct} 
-                    onChange={e => setFormData({...formData, expectedIncrementPct: Number(e.target.value)})} 
+                  <Input
+                    type="number"
+                    value={formData.expectedIncrementPct}
+                    onChange={e => setFormData({ ...formData, expectedIncrementPct: Number(e.target.value) })}
                     className="bg-secondary"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label>Ultimate Financial Ambition</Label>
-                  <Textarea 
+                  <Textarea
                     placeholder="e.g. Buy a flat in Burj Khalifa, or Retire at 45 with 5Cr."
-                    value={formData.ambition} 
-                    onChange={e => setFormData({...formData, ambition: e.target.value})} 
+                    value={formData.ambition}
+                    onChange={e => setFormData({ ...formData, ambition: e.target.value })}
                     className="bg-secondary resize-none"
                     rows={3}
                   />
@@ -249,46 +249,45 @@ const AiBudgetingPage = () => {
 
             {isLoading && (
               <div className="h-full min-h-[400px] rounded-xl border border-border bg-card flex flex-col items-center justify-center p-8 animate-pulse">
-                 <Loader2 size={48} className="text-primary animate-spin mb-4" />
-                 <p className="text-lg font-medium">Running deeply compounded calculations...</p>
-                 <p className="text-sm text-muted-foreground mt-2">Analyzing market scenarios & industry trends</p>
+                <Loader2 size={48} className="text-primary animate-spin mb-4" />
+                <p className="text-lg font-medium">Running deeply compounded calculations...</p>
+                <p className="text-sm text-muted-foreground mt-2">Analyzing market scenarios & industry trends</p>
               </div>
             )}
 
             {result && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                
+
                 {/* Highlight Stats Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 relative overflow-hidden">
-                     <div className="absolute -right-4 -top-4 opacity-10"><Target size={100} /></div>
-                     <span className="text-sm font-medium text-primary flex items-center gap-2"><Target size={16}/> Target Ambition ETA</span>
-                     <div className="mt-2 flex items-baseline gap-2">
-                        {result.timeAnalysis.achievable ? (
-                          <>
-                            <span className="text-4xl font-display font-bold">{result.timeAnalysis.estimatedYears}</span>
-                            <span className="text-muted-foreground font-medium">Years</span>
-                          </>
-                        ) : (
-                          <span className="text-2xl font-display font-bold text-destructive">Mathematically Unlikely</span>
-                        )}
-                     </div>
+                    <div className="absolute -right-4 -top-4 opacity-10"><Target size={100} /></div>
+                    <span className="text-sm font-medium text-primary flex items-center gap-2"><Target size={16} /> Target Ambition ETA</span>
+                    <div className="mt-2 flex items-baseline gap-2">
+                      {result.timeAnalysis.achievable ? (
+                        <>
+                          <span className="text-4xl font-display font-bold">{result.timeAnalysis.estimatedYears}</span>
+                          <span className="text-muted-foreground font-medium">Years</span>
+                        </>
+                      ) : (
+                        <span className="text-2xl font-display font-bold text-destructive">Mathematically Unlikely</span>
+                      )}
+                    </div>
                   </div>
 
-                  <div className={`rounded-xl border p-5 relative overflow-hidden ${
-                    result.stressMeter.score >= 8 ? 'border-destructive/30 bg-destructive/10 text-destructive' : 
-                    result.stressMeter.score >= 5 ? 'border-warning/30 bg-warning/10 text-warning' : 
-                    'border-success/30 bg-success/10 text-success'
-                  }`}>
-                     <div className="absolute -right-4 -top-4 opacity-10"><AlertTriangle size={100} /></div>
-                     <span className="text-sm font-medium flex items-center gap-2"><Activity size={16}/> Stress & Difficulty Meter</span>
-                     <div className="mt-2 flex items-center gap-4">
-                        <span className="text-4xl font-display font-bold">{result.stressMeter.score}<span className="text-xl opacity-50">/10</span></span>
-                        <span className="font-semibold text-lg">{result.stressMeter.label}</span>
-                     </div>
-                     <p className="text-xs mt-2 opacity-80 leading-relaxed max-w-[90%]">
-                       {result.stressMeter.explanation}
-                     </p>
+                  <div className={`rounded-xl border p-5 relative overflow-hidden ${result.stressMeter.score >= 8 ? 'border-destructive/30 bg-destructive/10 text-destructive' :
+                    result.stressMeter.score >= 5 ? 'border-warning/30 bg-warning/10 text-warning' :
+                      'border-success/30 bg-success/10 text-success'
+                    }`}>
+                    <div className="absolute -right-4 -top-4 opacity-10"><AlertTriangle size={100} /></div>
+                    <span className="text-sm font-medium flex items-center gap-2"><Activity size={16} /> Stress & Difficulty Meter</span>
+                    <div className="mt-2 flex items-center gap-4">
+                      <span className="text-4xl font-display font-bold">{result.stressMeter.score}<span className="text-xl opacity-50">/10</span></span>
+                      <span className="font-semibold text-lg">{result.stressMeter.label}</span>
+                    </div>
+                    <p className="text-xs mt-2 opacity-80 leading-relaxed max-w-[90%]">
+                      {result.stressMeter.explanation}
+                    </p>
                   </div>
                 </div>
 
@@ -335,7 +334,7 @@ const AiBudgetingPage = () => {
 
                 {/* Bottom Row: Portfolio & Roadmap */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
+
                   {/* Chart */}
                   <div className="rounded-xl border border-border bg-card p-6 flex flex-col">
                     <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
@@ -343,7 +342,7 @@ const AiBudgetingPage = () => {
                     </h3>
                     <p className="text-xs text-muted-foreground mb-4">Risk-adjusted for age {formData.age}</p>
                     <div className="flex items-center justify-center min-h-[180px] mb-4">
-                       <Chart options={pieOptions} series={pieSeries} type="donut" width="100%" height={200} />
+                      <Chart options={pieOptions} series={pieSeries} type="donut" width="100%" height={200} />
                     </div>
                     {/* ₹ Amount Breakdown */}
                     <div className="space-y-2 border-t border-border pt-4">
@@ -365,8 +364,8 @@ const AiBudgetingPage = () => {
                         </div>
                       ))}
                       <div className="flex items-center justify-between text-sm pt-2 border-t border-border/50">
-                         <span className="font-medium">Total Monthly Investment</span>
-                         <span className="font-mono font-bold text-primary">₹{((result.portfolioAmounts?.equity || 0) + (result.portfolioAmounts?.debt || 0) + (result.portfolioAmounts?.gold || 0) + (result.portfolioAmounts?.other || 0)).toLocaleString('en-IN')}</span>
+                        <span className="font-medium">Total Monthly Investment</span>
+                        <span className="font-mono font-bold text-primary">₹{((result.portfolioAmounts?.equity || 0) + (result.portfolioAmounts?.debt || 0) + (result.portfolioAmounts?.gold || 0) + (result.portfolioAmounts?.other || 0)).toLocaleString('en-IN')}</span>
                       </div>
                     </div>
                   </div>
@@ -379,13 +378,13 @@ const AiBudgetingPage = () => {
                     <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-border before:to-transparent pt-2">
                       {result.roadmap.map((step, idx) => (
                         <div key={idx} className="relative flex items-start gap-4">
-                           <div className="rounded-full bg-primary/20 border-2 border-primary w-10 h-10 flex items-center justify-center font-bold text-xs shrink-0 z-10">
-                              Y{step.year}
-                           </div>
-                           <div className="bg-secondary/30 rounded-lg p-3 w-full border border-border/50">
-                              <h4 className="font-bold text-sm text-primary mb-1">{step.milestone}</h4>
-                              <p className="text-xs text-muted-foreground leading-relaxed">{step.actionableAdvice}</p>
-                           </div>
+                          <div className="rounded-full bg-primary/20 border-2 border-primary w-10 h-10 flex items-center justify-center font-bold text-xs shrink-0 z-10">
+                            Y{step.year}
+                          </div>
+                          <div className="bg-secondary/30 rounded-lg p-3 w-full border border-border/50">
+                            <h4 className="font-bold text-sm text-primary mb-1">{step.milestone}</h4>
+                            <p className="text-xs text-muted-foreground leading-relaxed">{step.actionableAdvice}</p>
+                          </div>
                         </div>
                       ))}
                     </div>

@@ -22,7 +22,7 @@ const NewsPage = () => {
   const timeSince = (dateString: string) => {
     const date = new Date(dateString.replace(' ', 'T') + 'Z');
     const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-    
+
     let interval = seconds / 31536000;
     if (interval > 1) return Math.floor(interval) + " years ago";
     interval = seconds / 2592000;
@@ -45,7 +45,7 @@ const NewsPage = () => {
               Market News
             </h1>
             <p className="mt-1 text-muted-foreground">
-              Stay informed with the latest financial news and market updates directly from Yahoo Finance.
+              Stay informed with the latest financial news and market updates.
             </p>
           </div>
           <Button variant="outline" size="sm" onClick={loadNews} disabled={loading}>
@@ -78,19 +78,19 @@ const NewsPage = () => {
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {news.map((item) => (
-              <a 
-                href={item.link} 
-                target="_blank" 
-                rel="noreferrer" 
+              <a
+                href={item.link}
+                target="_blank"
+                rel="noreferrer"
                 key={item.guid}
                 className="group flex flex-col rounded-xl border border-border bg-card overflow-hidden hover:border-primary/50 transition-colors"
               >
                 {/* Thumbnail Header */}
                 <div className="relative h-48 w-full bg-secondary overflow-hidden">
                   {item.thumbnail ? (
-                    <img 
-                      src={item.thumbnail} 
-                      alt={item.title} 
+                    <img
+                      src={item.thumbnail}
+                      alt={item.title}
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=2070&auto=format&fit=crop';
@@ -116,7 +116,7 @@ const NewsPage = () => {
                   <p className="text-sm text-muted-foreground line-clamp-3 mb-4 flex-1">
                     {item.description}
                   </p>
-                  
+
                   {/* Footer */}
                   <div className="flex items-center justify-between text-xs font-medium text-muted-foreground pt-4 border-t border-border/50">
                     <span className="flex items-center gap-1.5">
