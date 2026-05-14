@@ -99,12 +99,17 @@ const StockSimulatorPage = () => {
     // Fetch user profile and unified portfolio 
     fetchCurrentUserProfile().then(profile => {
       if (profile.id) setUserId(profile.id);
-      setCash(profile.balance);
+      // Only set initial cash/holdings once to prevent overwriting local state updates
+      setCash(prev => {
+        // If we already have a session, we might want to be careful not to overwrite
+        // but since this is initial mount, it's usually fine.
+        return profile.balance;
+      });
       if (profile.stockHoldings && profile.stockHoldings.length > 0) {
         setHoldings(profile.stockHoldings);
       }
     });
-  }, [fetchCurrentQuote]);
+  }, []); // Only run once on mount
 
 
   const buy = useCallback(async () => {
@@ -113,23 +118,22 @@ const StockSimulatorPage = () => {
     if (cost > cash) { toast.error("Insufficient funds"); return; }
     
     const newCash = cash - cost;
-    setCash(newCash);
     
     let newHoldings: Holding[];
-    setHoldings((prev) => {
-      const existing = prev.find((h) => h.symbol === selectedSymbol);
-      if (existing) {
-        const newQty = existing.qty + qty;
-        const newAvg = ((existing.avgPrice * existing.qty) + cost) / newQty;
-        newHoldings = prev.map((h) => h.symbol === selectedSymbol ? { ...h, qty: newQty, avgPrice: newAvg } : h);
-      } else {
-        newHoldings = [...prev, { symbol: selectedSymbol, qty, avgPrice: activeQuote.price }];
-      }
-      return newHoldings;
-    });
+    const existing = holdings.find((h) => h.symbol === selectedSymbol);
+    if (existing) {
+      const newQty = existing.qty + qty;
+      const newAvg = ((existing.avgPrice * existing.qty) + cost) / newQty;
+      newHoldings = holdings.map((h) => h.symbol === selectedSymbol ? { ...h, qty: newQty, avgPrice: newAvg } : h);
+    } else {
+      newHoldings = [...holdings, { symbol: selectedSymbol, qty, avgPrice: activeQuote.price }];
+    }
+
+    setCash(newCash);
+    setHoldings(newHoldings);
 
     if (userId) {
-      updatePortfolio(userId, newCash, newHoldings!, undefined);
+      updatePortfolio(userId, newCash, newHoldings, undefined);
       logTrade(userId, 'STOCK', 'BUY', selectedSymbol, qty, activeQuote.price);
     }
     

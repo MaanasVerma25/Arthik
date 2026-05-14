@@ -83,7 +83,7 @@ const ForexSimulatorPage = () => {
         setHoldings(profile.forexHoldings);
       }
     });
-  }, [fetchCurrentQuote]);
+  }, []); // Only run once on mount
 
   const buy = useCallback(async () => {
     if (!activeQuote) return;
@@ -92,28 +92,27 @@ const ForexSimulatorPage = () => {
     if (costInr > cash) { toast.error("Insufficient funds"); return; }
     
     const newCash = cash - costInr;
-    setCash(newCash);
     
     let newHoldings: Holding[];
-    setHoldings((prev) => {
-      const existing = prev.find((h) => h.symbol === selectedSymbol);
-      if (existing) {
-        const newQty = existing.qty + qty;
-        const newAvg = ((existing.avgPrice * existing.qty) + cost) / newQty;
-        newHoldings = prev.map((h) => h.symbol === selectedSymbol ? { ...h, qty: newQty, avgPrice: newAvg } : h);
-      } else {
-        newHoldings = [...prev, { symbol: selectedSymbol, qty, avgPrice: activeQuote.price }];
-      }
-      return newHoldings;
-    });
+    const existing = holdings.find((h) => h.symbol === selectedSymbol);
+    if (existing) {
+      const newQty = existing.qty + qty;
+      const newAvg = ((existing.avgPrice * existing.qty) + (activeQuote.price * qty)) / newQty;
+      newHoldings = holdings.map((h) => h.symbol === selectedSymbol ? { ...h, qty: newQty, avgPrice: newAvg } : h);
+    } else {
+      newHoldings = [...holdings, { symbol: selectedSymbol, qty, avgPrice: activeQuote.price }];
+    }
+
+    setCash(newCash);
+    setHoldings(newHoldings);
 
     if (userId) {
-      updatePortfolio(userId, newCash, undefined, newHoldings!);
+      updatePortfolio(userId, newCash, undefined, newHoldings);
       logTrade(userId, 'FOREX', 'BUY', selectedSymbol, qty, activeQuote.price);
     }
     
     toast.success(`Bought ${qty} ${selectedSymbol} at $${activeQuote.price.toFixed(5)}`);
-  }, [selectedSymbol, activeQuote, qty, cash, holdings, userId]);
+  }, [selectedSymbol, activeQuote, qty, cash, holdings, userId, inrRate]);
 
   const sell = useCallback(async (symbol: string) => {
     const holding = holdings.find((h) => h.symbol === symbol);
@@ -135,7 +134,7 @@ const ForexSimulatorPage = () => {
     }
     
     toast.success(`Sold all ${symbol} at $${currentPrice.toFixed(5)}`);
-  }, [holdings, livePrices, cash, userId]);
+  }, [holdings, livePrices, cash, userId, inrRate]);
 
   // Dynamic Portfolio Calculations
   const portfolioValue = holdings.reduce((sum, h) => {

@@ -117,23 +117,22 @@ const CryptoPage = () => {
     if (costInr > cash) { toast.error("Insufficient funds"); return; }
 
     const newCash = cash - costInr;
-    setCash(newCash);
 
     let newHoldings: CryptoHolding[];
-    setHoldings((prev) => {
-      const existing = prev.find((h) => h.symbol === selectedAsset.symbol);
-      if (existing) {
-        const newQty = existing.qty + qty;
-        const newAvg = ((existing.avgPrice * existing.qty) + (selectedAsset.rawPrice * qty)) / newQty;
-        newHoldings = prev.map((h) => h.symbol === selectedAsset.symbol ? { ...h, qty: newQty, avgPrice: newAvg } : h);
-      } else {
-        newHoldings = [...prev, { symbol: selectedAsset.symbol, qty, avgPrice: selectedAsset.rawPrice }];
-      }
-      return newHoldings;
-    });
+    const existing = holdings.find((h) => h.symbol === selectedAsset.symbol);
+    if (existing) {
+      const newQty = existing.qty + qty;
+      const newAvg = ((existing.avgPrice * existing.qty) + (selectedAsset.rawPrice * qty)) / newQty;
+      newHoldings = holdings.map((h) => h.symbol === selectedAsset.symbol ? { ...h, qty: newQty, avgPrice: newAvg } : h);
+    } else {
+      newHoldings = [...holdings, { symbol: selectedAsset.symbol, qty, avgPrice: selectedAsset.rawPrice }];
+    }
+
+    setCash(newCash);
+    setHoldings(newHoldings);
 
     if (userId) {
-      updatePortfolio(userId, newCash, undefined, undefined, newHoldings!);
+      updatePortfolio(userId, newCash, undefined, undefined, newHoldings);
       logTrade(userId, 'CRYPTO', 'BUY', selectedAsset.symbol, qty, selectedAsset.rawPrice);
     }
 

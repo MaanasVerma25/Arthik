@@ -16,13 +16,13 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     full_name TEXT DEFAULT '',
     role TEXT DEFAULT 'Student',
     city TEXT DEFAULT '',
-    balance INTEGER DEFAULT 100000,
+    balance NUMERIC DEFAULT 100000,
     is_pro BOOLEAN DEFAULT false,
     stock_holdings JSONB DEFAULT '[]'::jsonb,
     forex_holdings JSONB DEFAULT '[]'::jsonb,
     crypto_holdings JSONB DEFAULT '[]'::jsonb,
     financial_ambition TEXT DEFAULT '',
-    monthly_salary INTEGER DEFAULT 0,
+    monthly_salary NUMERIC DEFAULT 0,
     field_of_work TEXT DEFAULT '',
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );
@@ -30,13 +30,15 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- Add columns that may be missing on existing tables
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'Student';
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS city TEXT DEFAULT '';
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS balance INTEGER DEFAULT 100000;
+ALTER TABLE public.profiles ALTER COLUMN balance TYPE NUMERIC;
+ALTER TABLE public.profiles ALTER COLUMN balance SET DEFAULT 100000;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_pro BOOLEAN DEFAULT false;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS stock_holdings JSONB DEFAULT '[]'::jsonb;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS forex_holdings JSONB DEFAULT '[]'::jsonb;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS crypto_holdings JSONB DEFAULT '[]'::jsonb;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS financial_ambition TEXT DEFAULT '';
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS monthly_salary INTEGER DEFAULT 0;
+ALTER TABLE public.profiles ALTER COLUMN monthly_salary TYPE NUMERIC;
+ALTER TABLE public.profiles ALTER COLUMN monthly_salary SET DEFAULT 0;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS field_of_work TEXT DEFAULT '';
 
 -- Set default balance to 100000 for new users

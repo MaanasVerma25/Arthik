@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { fetchCurrentUserProfile, UserProfile, getTradeHistory, TradeRecord } from "@/lib/supabaseService";
 import { getUsdToInrRate, FALLBACK_INR_RATE } from "@/lib/currencyService";
-import { TrendingUp, TrendingDown, History, Wallet, LayoutDashboard, BarChart3, PiggyBank, ArrowUpRight, ArrowDownRight, ShoppingCart, ArrowRightLeft } from "lucide-react";
+import { TrendingUp, TrendingDown, History, Wallet, LayoutDashboard, BarChart3, PiggyBank, ArrowUpRight, ArrowDownRight, ShoppingCart, ArrowRightLeft, PieChart } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import Chart from "react-apexcharts";
 
 const INITIAL_BALANCE = 100000;
 
@@ -54,11 +55,11 @@ const DashboardPage = () => {
   // ── Portfolio Calculations ──
   const cashBalance = user.balance;
 
-  const stockInvested = (user.stockHoldings || []).reduce((sum: number, h: any) => sum + h.avgPrice * h.qty, 0);
+  const stockInvested = (user.stockHoldings || []).reduce((sum: number, h: any) => sum + Number(h.avgPrice || 0) * Number(h.qty || 0), 0);
   // Forex avgPrice is stored in USD, convert to INR
-  const forexInvested = (user.forexHoldings || []).reduce((sum: number, h: any) => sum + h.avgPrice * inrRate * h.qty, 0);
+  const forexInvested = (user.forexHoldings || []).reduce((sum: number, h: any) => sum + Number(h.avgPrice || 0) * inrRate * Number(h.qty || 0), 0);
   // Crypto avgPrice is stored in USD, convert to INR
-  const cryptoInvested = (user.cryptoHoldings || []).reduce((sum: number, h: any) => sum + h.avgPrice * inrRate * h.qty, 0);
+  const cryptoInvested = (user.cryptoHoldings || []).reduce((sum: number, h: any) => sum + Number(h.avgPrice || 0) * inrRate * Number(h.qty || 0), 0);
 
   const totalHoldingsValue = stockInvested + forexInvested + cryptoInvested;
   const totalEquity = cashBalance + totalHoldingsValue;
@@ -87,6 +88,40 @@ const DashboardPage = () => {
       case 'CRYPTO': return 'bg-amber-500/10';
       default: return 'bg-secondary';
     }
+  };
+
+  // ── Chart Config ──
+  const breakdownSeries = [stockInvested, forexInvested, cryptoInvested];
+  const breakdownOptions: any = {
+    chart: { type: 'donut', background: 'transparent' },
+    labels: ['Stocks', 'Forex', 'Crypto'],
+    theme: { mode: 'dark' },
+    colors: ['#3b82f6', '#10b981', '#f59e0b'],
+    stroke: { show: false },
+    dataLabels: { enabled: false },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '70%',
+          labels: {
+            show: true,
+            name: { show: true, color: 'hsl(216 18% 62%)' },
+            value: {
+              show: true,
+              color: 'white',
+              formatter: (val: number) => `₹${val.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`
+            },
+            total: {
+              show: true,
+              label: 'Invested',
+              color: 'hsl(216 18% 62%)',
+              formatter: () => `₹${totalHoldingsValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`
+            }
+          }
+        }
+      }
+    },
+    legend: { show: false }
   };
 
   return (
@@ -188,69 +223,82 @@ const DashboardPage = () => {
           transition={{ delay: 0.25 }}
           className="rounded-xl border border-border bg-card p-5"
         >
-          <h3 className="text-sm font-semibold text-muted-foreground mb-4 flex items-center gap-2">
-            <BarChart3 size={16} /> Portfolio Breakdown by Market
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Link to="/games/stock-simulator" className="group">
-              <div className="rounded-lg border border-border bg-secondary/30 p-4 hover:border-primary/50 transition-colors">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold">Stocks</span>
-                  <span className="text-[10px] text-muted-foreground bg-secondary px-2 py-0.5 rounded">{stockCount} position{stockCount !== 1 ? 's' : ''}</span>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+              <PieChart size={16} /> Portfolio Breakdown by Market
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            {/* Chart Column */}
+            <div className="md:col-span-4 flex justify-center">
+              {totalHoldingsValue > 0 ? (
+                <div className="h-[180px] w-full">
+                  <Chart options={breakdownOptions} series={breakdownSeries} type="donut" height="100%" />
                 </div>
-                <div className="font-mono text-lg font-bold">
-                  ₹{stockInvested.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+              ) : (
+                <div className="h-[180px] w-[180px] rounded-full border-4 border-dashed border-border flex items-center justify-center text-center p-4">
+                  <p className="text-[10px] text-muted-foreground">No active positions to display</p>
                 </div>
-                {totalHoldingsValue > 0 && (
-                  <div className="mt-2 h-1.5 rounded-full bg-secondary overflow-hidden">
+              )}
+            </div>
+
+            {/* Stats Column */}
+            <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <Link to="/games/stock-simulator" className="group">
+                <div className="rounded-lg border border-border bg-secondary/30 p-3 hover:border-primary/50 transition-colors">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-semibold">Stocks</span>
+                    <span className="text-[10px] text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{stockCount}</span>
+                  </div>
+                  <div className="font-mono text-md font-bold">
+                    ₹{stockInvested.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+                  </div>
+                  <div className="mt-2 h-1 rounded-full bg-secondary overflow-hidden">
                     <div
                       className="h-full rounded-full bg-primary transition-all duration-500"
                       style={{ width: `${totalHoldingsValue > 0 ? (stockInvested / totalHoldingsValue) * 100 : 0}%` }}
                     />
                   </div>
-                )}
-              </div>
-            </Link>
+                </div>
+              </Link>
 
-            <Link to="/games/forex-simulator" className="group">
-              <div className="rounded-lg border border-border bg-secondary/30 p-4 hover:border-primary/50 transition-colors">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold">Forex</span>
-                  <span className="text-[10px] text-muted-foreground bg-secondary px-2 py-0.5 rounded">{forexCount} position{forexCount !== 1 ? 's' : ''}</span>
-                </div>
-                <div className="font-mono text-lg font-bold">
-                  ₹{forexInvested.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                </div>
-                {totalHoldingsValue > 0 && (
-                  <div className="mt-2 h-1.5 rounded-full bg-secondary overflow-hidden">
+              <Link to="/games/forex-simulator" className="group">
+                <div className="rounded-lg border border-border bg-secondary/30 p-3 hover:border-primary/50 transition-colors">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-semibold">Forex</span>
+                    <span className="text-[10px] text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{forexCount}</span>
+                  </div>
+                  <div className="font-mono text-md font-bold">
+                    ₹{forexInvested.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+                  </div>
+                  <div className="mt-2 h-1 rounded-full bg-secondary overflow-hidden">
                     <div
                       className="h-full rounded-full bg-blue-500 transition-all duration-500"
                       style={{ width: `${totalHoldingsValue > 0 ? (forexInvested / totalHoldingsValue) * 100 : 0}%` }}
                     />
                   </div>
-                )}
-              </div>
-            </Link>
+                </div>
+              </Link>
 
-            <Link to="/crypto" className="group">
-              <div className="rounded-lg border border-border bg-secondary/30 p-4 hover:border-primary/50 transition-colors">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold">Crypto</span>
-                  <span className="text-[10px] text-muted-foreground bg-secondary px-2 py-0.5 rounded">{cryptoCount} position{cryptoCount !== 1 ? 's' : ''}</span>
-                </div>
-                <div className="font-mono text-lg font-bold">
-                  ₹{cryptoInvested.toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                </div>
-                {totalHoldingsValue > 0 && (
-                  <div className="mt-2 h-1.5 rounded-full bg-secondary overflow-hidden">
+              <Link to="/crypto" className="group">
+                <div className="rounded-lg border border-border bg-secondary/30 p-3 hover:border-primary/50 transition-colors">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-semibold">Crypto</span>
+                    <span className="text-[10px] text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{cryptoCount}</span>
+                  </div>
+                  <div className="font-mono text-md font-bold">
+                    ₹{cryptoInvested.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
+                  </div>
+                  <div className="mt-2 h-1 rounded-full bg-secondary overflow-hidden">
                     <div
                       className="h-full rounded-full bg-amber-500 transition-all duration-500"
                       style={{ width: `${totalHoldingsValue > 0 ? (cryptoInvested / totalHoldingsValue) * 100 : 0}%` }}
                     />
                   </div>
-                )}
-              </div>
-            </Link>
+                </div>
+              </Link>
+            </div>
           </div>
         </motion.div>
 
