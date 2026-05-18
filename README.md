@@ -168,19 +168,7 @@ cd arthik2.0
 npm install
 ```
 
-### Environment Variables
 
-Create a `.env` file in the project root:
-
-```env
-VITE_GEMINI_API_KEY=your_gemini_api_key_here
-VITE_SUPABASE_URL=your_supabase_url          # optional
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key # optional
-```
-
-> 💡 Get a free Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey).
->
-> Without Supabase keys, the app runs in **Guest Mode** — full simulator access with ₹1,00,000 virtual balance (no data persistence).
 
 ### Run Locally
 
@@ -246,9 +234,6 @@ Contributions are welcome! Feel free to open issues and submit pull requests.
 
 ---
 
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
